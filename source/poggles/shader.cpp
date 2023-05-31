@@ -53,8 +53,6 @@ auto poggles::compileShader(shader_id shader,
 
     // convert stream into string
     source_string = source_stream.str();
-    source_string = poggles::addDefinesToShaderSource(source_string, defines);
-
     // Add defines to shader
   } catch (std::ifstream::failure const&) {
     std::string error_msg;
@@ -72,7 +70,17 @@ auto poggles::compileShader(shader_id shader,
     return false;
   }
 
-  GLchar const* source_code = source_string.c_str();
+  return poggles::compileShader(shader, {path.c_str(), source_string}, defines);
+}
+
+auto poggles::compileShader(shader_id shader,
+                            poggles::ShaderSource source,
+                            std::initializer_list<std::string> const& defines)
+    -> bool
+{
+  source.text = poggles::addDefinesToShaderSource(source.text, defines);
+
+  GLchar const* source_code = source.text.c_str();
 
   // compile shader
   glShaderSource(shader, 1, &source_code, nullptr);
@@ -90,7 +98,7 @@ auto poggles::compileShader(shader_id shader,
   GLint success = -1;
   glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
   if (success == 0) {
-    std::cerr << "[SHADER] compilation log " << path.string() << ":\n"
+    std::cerr << "[SHADER] compilation log " << source.name << ":\n"
               << log << std::endl;
   }
   return success != 0;

@@ -101,4 +101,10 @@ auto compileProgram(
     // defines provided in the form "NAME [optional value]"
     std::initializer_list<std::string> const& defines = {}) -> bool;
 
+auto compileProgram(
+    program_id program,
+    std::initializer_list<std::pair<GLenum, ShaderSource>> const& shaderFiles,
+    // defines provided in the form "NAME [optional value]"
+    std::initializer_list<std::string> const& defines = {}) -> bool;
+
 }  // namespace poggles

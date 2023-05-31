@@ -44,6 +44,26 @@ auto poggles::compileProgram(
   return status & poggles::checkLinkSuccess(program);
 }
 
+auto poggles::compileProgram(
+    program_id program,
+    std::initializer_list<std::pair<GLenum, poggles::ShaderSource>> const&
+        shaderFiles,
+    std::initializer_list<std::string> const& defines) -> bool
+{
+  bool status = true;
+
+  for (auto [type, source] : shaderFiles) {
+    shader_handle shader(type);
+    status &= compileShader(shader.value(), source, defines);
+    gl::attachShader(program, shader.value());
+    // shader_handle should be safe to go out of scope after being attached
+  }
+
+  glLinkProgram(program);
+
+  return status & poggles::checkLinkSuccess(program);
+}
+
 poggles::program::program(
     std::initializer_list<std::pair<GLenum, std::string>> const& shaderFiles,
     std::initializer_list<std::string> const& defines)
